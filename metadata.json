@@ -1,0 +1,7 @@
+{
+  "name": "AAU UniFound - Ambrose Alli University Lost & Found",
+  "description": "The official property recovery platform for the Ambrose Alli University community, featuring AI-enhanced reporting and secure administration.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
