@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'export',
   images: {
+    unoptimized: true,
     domains: ['api.dicebear.com', 'res.cloudinary.com'],
   },
   // This ensures that native node modules aren't bundled into the client
