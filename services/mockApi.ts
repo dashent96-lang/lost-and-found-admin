@@ -10,32 +10,44 @@ const STORAGE_KEYS = {
 
 const DEFAULT_ADMIN: User = {
   id: 'admin_primary',
-  name: 'Campus Property Office',
-  email: 'admin@uni.edu',
+  name: 'AAU Property Office',
+  email: 'admin@aauekpoma.edu.ng',
   role: UserRole.ADMIN,
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin&backgroundColor=b6e3f4'
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin&backgroundColor=4f46e5'
 };
 
 const getStorage = <T,>(key: string, defaultValue: T): T => {
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : defaultValue;
+  if (typeof window === 'undefined') return defaultValue;
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
+  } catch (e) {
+    console.error(`Storage Access Error [${key}]:`, e);
+    return defaultValue;
+  }
 };
 
 const setStorage = <T,>(key: string, data: T) => {
-  localStorage.setItem(key, JSON.stringify(data));
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    console.error(`Storage Sync Error [${key}]:`, e);
+  }
 };
 
-/**
- * Service Layer Bridge
- * Note: In a true Next.js App Router environment, these methods would be 
- * implemented as Server Actions in separate files calling the Database directly.
- */
 export const MockApi = {
   async init() {
     try {
       await connectToDatabase();
+      // Ensure admin exists in registry
+      const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+      if (!users.find(u => u.role === UserRole.ADMIN)) {
+        users.push(DEFAULT_ADMIN);
+        setStorage(STORAGE_KEYS.USERS, users);
+      }
     } catch (err) {
-      console.warn("Database initialization failed. Falling back to local state.", err);
+      console.warn("API Layer: Database initialization skipped in client context.");
     }
   },
 
@@ -45,15 +57,16 @@ export const MockApi = {
 
   async login(email: string): Promise<User> {
     const users = getStorage<User[]>(STORAGE_KEYS.USERS, [DEFAULT_ADMIN]);
-    let user = users.find(u => u.email === email);
+    let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     
     if (!user) {
+      const isNewAdmin = email.toLowerCase().includes('admin');
       user = {
         id: 'u_' + Math.random().toString(36).substr(2, 9),
         name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-        email,
-        role: email.includes('admin') ? UserRole.ADMIN : UserRole.USER,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
+        email: email.toLowerCase(),
+        role: isNewAdmin ? UserRole.ADMIN : UserRole.USER,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`
       };
       users.push(user);
       setStorage(STORAGE_KEYS.USERS, users);
@@ -63,26 +76,16 @@ export const MockApi = {
     return user;
   },
 
-  async updateUserProfile(userId: string, data: Partial<User>): Promise<User> {
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, [DEFAULT_ADMIN]);
-    const idx = users.findIndex(u => u.id === userId);
-    if (idx === -1) throw new Error("User not found");
-    
-    const updatedUser = { ...users[idx], ...data };
-    users[idx] = updatedUser;
-    setStorage(STORAGE_KEYS.USERS, users);
-    setStorage(STORAGE_KEYS.CURRENT_USER, updatedUser);
-    return updatedUser;
-  },
-
   async logout() {
-    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    }
   },
 
   async getPosts(role: UserRole, userId?: string): Promise<Post[]> {
     const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
-    if (userId) return posts.filter(p => p.userId === userId);
     if (role === UserRole.ADMIN) return posts;
+    if (userId) return posts.filter(p => p.userId === userId);
     return posts.filter(p => p.status === PostStatus.APPROVED);
   },
 
@@ -115,13 +118,16 @@ export const MockApi = {
 
   async getMessages(postId: string, userId?: string): Promise<Message[]> {
     const messages = getStorage<Message[]>(STORAGE_KEYS.MESSAGES, []);
-    return messages.filter(m => m.postId === postId && (userId ? (m.senderId === userId || m.recipientId === userId) : true));
+    return messages.filter(m => 
+      m.postId === postId && 
+      (!userId || m.senderId === userId || m.recipientId === userId)
+    );
   },
 
-  async getAdminInbox(): Promise<{post: Post, lastMessage: Message, user: {id: string, name: string}}[]> {
+  async getAdminInbox(): Promise<any[]> {
     const messages = getStorage<Message[]>(STORAGE_KEYS.MESSAGES, []);
     const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
-    const threads = new Map<string, {post: Post, lastMessage: Message, user: {id: string, name: string}}>();
+    const threads = new Map<string, any>();
     
     messages.forEach(m => {
       const studentId = m.isAdmin ? m.recipientId : m.senderId;
@@ -134,7 +140,7 @@ export const MockApi = {
         threads.set(key, {
           post,
           lastMessage: m,
-          user: { id: studentId, name: m.isAdmin ? 'Student' : m.senderName }
+          user: { id: studentId, name: m.isAdmin ? 'Student Registry User' : m.senderName }
         });
       }
     });
@@ -144,11 +150,11 @@ export const MockApi = {
     );
   },
 
-  async getUserInbox(userId: string): Promise<{post: Post, lastMessage: Message}[]> {
+  async getUserInbox(userId: string): Promise<any[]> {
     const messages = getStorage<Message[]>(STORAGE_KEYS.MESSAGES, []);
     const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
     const userThreadPostIds = new Set(messages.filter(m => m.senderId === userId || m.recipientId === userId).map(m => m.postId));
-    const conversations: {post: Post, lastMessage: Message}[] = [];
+    const conversations: any[] = [];
 
     userThreadPostIds.forEach(pid => {
       const postMessages = messages.filter(m => m.postId === pid && (m.senderId === userId || m.recipientId === userId));
@@ -166,7 +172,7 @@ export const MockApi = {
     );
   },
 
-  async sendMessage(msgData: {postId: string, senderId: string, senderName: string, recipientId: string, content: string, isAdmin: boolean}): Promise<Message> {
+  async sendMessage(msgData: any): Promise<Message> {
     const messages = getStorage<Message[]>(STORAGE_KEYS.MESSAGES, []);
     const newMsg: Message = {
       ...msgData,
@@ -176,5 +182,22 @@ export const MockApi = {
     messages.push(newMsg);
     setStorage(STORAGE_KEYS.MESSAGES, messages);
     return newMsg;
+  },
+
+  async updateUserProfile(userId: string, data: Partial<User>): Promise<User> {
+    const users = getStorage<User[]>(STORAGE_KEYS.USERS, [DEFAULT_ADMIN]);
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) throw new Error("Registry record not found");
+    
+    const updatedUser = { ...users[idx], ...data };
+    users[idx] = updatedUser;
+    setStorage(STORAGE_KEYS.USERS, users);
+    
+    const currentSession = getStorage<User | null>(STORAGE_KEYS.CURRENT_USER, null);
+    if (currentSession?.id === userId) {
+      setStorage(STORAGE_KEYS.CURRENT_USER, updatedUser);
+    }
+    
+    return updatedUser;
   }
 };
