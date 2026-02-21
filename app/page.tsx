@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import PostForm from './components/PostForm';
-import AdminPanel from './components/AdminPanel';
-import ChatWindow from './components/ChatWindow';
-import AboutPage from './components/AboutPage';
-import Inbox from './components/Inbox';
-import ProfilePage from './components/ProfilePage';
-import PostDetailModal from './components/PostDetailModal';
-import { User, Post, PostStatus, PostType, UserRole, AppView } from './types';
-import { MockApi } from './services/mockApi';
+'use client';
 
-const App: React.FC = () => {
+import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import PostForm from '../components/PostForm';
+import AdminPanel from '../components/AdminPanel';
+import ChatWindow from '../components/ChatWindow';
+import AboutPage from '../components/AboutPage';
+import Inbox from '../components/Inbox';
+import ProfilePage from '../components/ProfilePage';
+import PostDetailModal from '../components/PostDetailModal';
+import { User, Post, PostStatus, PostType, UserRole, AppView } from '../types';
+import { MockApi } from '../services/mockApi';
+
+export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [view, setView] = useState<AppView>('home');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -245,6 +247,4 @@ const App: React.FC = () => {
       <MobileNav />
     </div>
   );
-};
-
-export default App;
+}

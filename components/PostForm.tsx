@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { PostType } from '../types';
 import { GeminiService } from '../services/geminiService';

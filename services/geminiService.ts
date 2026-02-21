@@ -6,7 +6,7 @@ export const GeminiService = {
    * Tailored for the Ambrose Alli University context using Gemini 3 Flash.
    */
   async enhanceDescription(itemTitle: string, rawNotes: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
     
     try {
       const response = await ai.models.generateContent({

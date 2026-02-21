@@ -1,4 +1,6 @@
 
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Post, Message, UserRole } from '../types';
 import { MockApi } from '../services/mockApi';

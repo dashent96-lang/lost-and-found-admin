@@ -99,7 +99,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onGetStarted }) => {
             <div className="bg-indigo-600 rounded-2xl p-8 text-white">
               <h4 className="text-xl font-bold mb-4">Dedicated to Ekpoma</h4>
               <p className="text-indigo-100 leading-relaxed italic">
-                "Our mission is to foster a culture of honesty and care within Ambrose Alli University by providing a modern tool for property recovery."
+                &ldquo;Our mission is to foster a culture of honesty and care within Ambrose Alli University by providing a modern tool for property recovery.&rdquo;
               </p>
               <p className="mt-4 text-sm font-bold opacity-80">— AAU Administration Office</p>
             </div>

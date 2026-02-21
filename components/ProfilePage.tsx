@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Post, Message, PostStatus, PostType } from '../types';
 import { MockApi } from '../services/mockApi';
@@ -290,7 +292,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigat
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest truncate">{conv.post.title}</p>
-                      <p className="text-xs text-slate-500 truncate mt-1 font-medium italic">"{conv.lastMessage.content}"</p>
+                      <p className="text-xs text-slate-500 truncate mt-1 font-medium italic">&ldquo;{conv.lastMessage.content}&rdquo;</p>
                     </div>
                   </button>
                 ))}
