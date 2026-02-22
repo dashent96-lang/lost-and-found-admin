@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Post, User, PostStatus, PostType, UserRole } from '../types';
 
 interface PostDetailModalProps {
@@ -36,10 +37,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         {/* Left Side: Image Viewer */}
         <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 relative group">
           {post.image ? (
-            <img 
+            <Image 
               src={post.image} 
               alt={post.title} 
-              className="w-full h-full object-cover"
+              fill 
+              className="object-cover"
+              referrerPolicy="no-referrer"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">

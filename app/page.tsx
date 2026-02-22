@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Header from '../components/Header';
 import PostForm from '../components/PostForm';
 import AdminPanel from '../components/AdminPanel';
@@ -212,7 +213,17 @@ export default function Home() {
                 {filteredPosts.map(post => (
                   <div key={post.id} onClick={() => setDetailedPost(post)} className="group bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full cursor-pointer">
                     <div className="relative h-56 overflow-hidden bg-slate-50">
-                      {post.image ? <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <div className="w-full h-full flex items-center justify-center text-slate-200 italic font-black text-4xl">AAU</div>}
+                      {post.image ? (
+                        <Image 
+                          src={post.image} 
+                          alt={post.title} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-200 italic font-black text-4xl">AAU</div>
+                      )}
                     </div>
                     <div className="p-8 flex-1 flex flex-col">
                       <h3 className="text-xl font-black text-slate-900 mb-2 line-clamp-1 tracking-tight">{post.title}</h3>

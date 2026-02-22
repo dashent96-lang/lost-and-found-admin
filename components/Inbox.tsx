@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { User, Post, Message, UserRole } from '../types';
 import { MockApi } from '../services/mockApi';
 
@@ -97,8 +98,18 @@ const Inbox: React.FC<InboxProps> = ({ currentUser }) => {
                 onClick={() => setSelectedThread(conv)}
                 className={`w-full p-4 text-left hover:bg-white border-b border-slate-100 transition-colors flex gap-3 ${selectedThread?.post.id === conv.post.id && (selectedThread?.user?.id === conv.user?.id) ? 'bg-white ring-2 ring-inset ring-indigo-500' : ''}`}
               >
-                <div className="w-12 h-12 rounded-xl bg-slate-200 flex-shrink-0 overflow-hidden">
-                  {conv.post.image ? <img src={conv.post.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-400">?</div>}
+                <div className="w-12 h-12 rounded-xl bg-slate-200 flex-shrink-0 overflow-hidden relative">
+                  {conv.post.image ? (
+                    <Image 
+                      src={conv.post.image} 
+                      alt={conv.post.title} 
+                      fill 
+                      className="object-cover" 
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">?</div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">

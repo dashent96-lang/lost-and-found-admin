@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { User, UserRole, AppView } from '../types';
 
 interface HeaderProps {
@@ -70,7 +71,16 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, onNavigate }) => {
                   <p className="text-sm font-bold text-slate-900 leading-tight">{user.name}</p>
                   <p className="text-[8px] text-indigo-500 font-black uppercase tracking-widest">My Profile</p>
                 </div>
-                <img src={user.avatar} alt={user.name} className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl ring-2 ring-indigo-50 shadow-sm" />
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9">
+                  <Image 
+                    src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
+                    alt={user.name} 
+                    width={36} 
+                    height={36} 
+                    className="rounded-xl ring-2 ring-indigo-50 shadow-sm object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
               
               <button 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { PostType } from '../types';
 import { GeminiService } from '../services/geminiService';
 
@@ -148,7 +149,13 @@ const PostForm: React.FC<PostFormProps> = ({ onSubmit, onCancel, isSubmitting })
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-[2rem] relative overflow-hidden h-52 group transition-all hover:border-indigo-300 hover:bg-indigo-50/10">
                 {formData.image ? (
                   <div className="absolute inset-0">
-                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                    <Image 
+                      src={formData.image} 
+                      alt="Preview" 
+                      fill 
+                      className="object-cover" 
+                      referrerPolicy="no-referrer"
+                    />
                     <button 
                       type="button" 
                       onClick={() => setFormData({...formData, image: ''})}

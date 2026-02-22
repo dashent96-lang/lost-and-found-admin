@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { User, Post, Message, PostStatus, PostType } from '../types';
 import { MockApi } from '../services/mockApi';
 
@@ -82,11 +83,13 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigat
         <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center lg:items-start">
           {/* Avatar Section */}
           <div className="relative group shrink-0">
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[3.5rem] overflow-hidden ring-8 ring-white shadow-2xl transition-all duration-500 group-hover:scale-[1.02] bg-slate-100">
-              <img 
-                src={isEditing ? formData.avatar : user.avatar} 
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[3.5rem] overflow-hidden ring-8 ring-white shadow-2xl transition-all duration-500 group-hover:scale-[1.02] bg-slate-100 relative">
+              <Image 
+                src={(isEditing ? formData.avatar : user.avatar) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
                 alt={user.name} 
-                className="w-full h-full object-cover" 
+                fill 
+                className="object-cover" 
+                referrerPolicy="no-referrer"
               />
             </div>
             {isEditing && (
@@ -227,9 +230,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigat
                   onClick={() => onViewPostDetails(post)}
                   className="group bg-white p-6 rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex gap-6 items-center cursor-pointer"
                 >
-                  <div className="w-24 h-24 rounded-3xl overflow-hidden bg-slate-50 shrink-0 border border-slate-50">
+                  <div className="w-24 h-24 rounded-3xl overflow-hidden bg-slate-50 shrink-0 border border-slate-50 relative">
                     {post.image ? (
-                      <img src={post.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <Image 
+                        src={post.image} 
+                        alt={post.title} 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                        referrerPolicy="no-referrer"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-200 italic font-black text-2xl">AAU</div>
                     )}

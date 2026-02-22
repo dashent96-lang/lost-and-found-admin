@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Post, PostStatus, PostType } from '../types';
 
 interface AdminPanelProps {
@@ -29,8 +30,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ posts, onAction, onDelete, onVi
     >
       <td className="py-4 pl-4 pr-3">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 flex-shrink-0 bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
-            {post.image ? <img src={post.image} className="h-full w-full object-cover group-hover:scale-110 transition-transform" /> : <div className="text-[10px] font-black text-slate-300 italic">AAU</div>}
+          <div className="h-12 w-12 flex-shrink-0 bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm relative">
+            {post.image ? (
+              <Image 
+                src={post.image} 
+                alt={post.title} 
+                fill 
+                className="object-cover group-hover:scale-110 transition-transform" 
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="text-[10px] font-black text-slate-300 italic">AAU</div>
+            )}
           </div>
           <div>
             <div className="font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">{post.title}</div>
