@@ -18,20 +18,23 @@ export default function Home() {
   const [view, setView] = useState<AppView>('home');
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMounted, setIsMounted] = useState(false); // Hydration Guard
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [detailedPost, setDetailedPost] = useState<Post | null>(null);
   const [filter, setFilter] = useState<{ type: PostType | 'ALL', search: string }>({ type: 'ALL', search: '' });
 
-  // 1. Hydration Guard: Ensure component is mounted before rendering client-specific logic
+  // 1. Initialization: Fetch user session and initial posts
   useEffect(() => {
-    setIsMounted(true);
     const init = async () => {
-      await MockApi.init();
-      const u = await MockApi.getCurrentUser();
-      setUser(u);
-      refreshPosts(u?.role);
-      setIsLoading(false);
+      try {
+        await MockApi.init();
+        const u = await MockApi.getCurrentUser();
+        setUser(u);
+        await refreshPosts(u?.role);
+      } catch (err) {
+        console.error("Initialization failed:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     init();
   }, []);
@@ -111,9 +114,6 @@ export default function Home() {
       refreshPosts(user?.role);
     }
   };
-
-  // Prevent rendering until mounted to avoid hydration mismatch blank screens
-  if (!isMounted) return null;
 
   const filteredPosts = posts.filter(p => {
     const matchType = filter.type === 'ALL' || p.type === filter.type;

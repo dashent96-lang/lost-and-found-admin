@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -31,6 +30,7 @@ const nextConfig = {
     }
     return config;
   },
+  turbopack: {},
 };
 
 export default nextConfig;
