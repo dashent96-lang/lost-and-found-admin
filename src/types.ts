@@ -52,21 +52,29 @@ export interface Message {
 /**
  * Helper types for the Messaging System (Inbox)
  */
-export interface AdminConversation {
+export type AdminConversation = {
   post: Post;
   lastMessage: Message;
   user: {
     id: string;
     name: string;
   };
-}
+};
 
-export interface UserConversation {
+export type UserConversation = {
   post: Post;
   lastMessage: Message;
-}
+};
 
 /**
  * Union type for all possible application views
  */
-export type AppView = 'home' | 'submit' | 'admin' | 'my-posts' | 'about' | 'login' | 'messages' | 'profile';
+export type AppView = 
+  | 'home' 
+  | 'submit' 
+  | 'admin' 
+  | 'my-posts' 
+  | 'about' 
+  | 'login' 
+  | 'messages' 
+  | 'profile';
