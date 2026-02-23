@@ -2,6 +2,7 @@
   "name": "aau-unifound",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -17,20 +18,20 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
     "mongoose": "^9.2.1",
-    "next": "^16.1.6",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "tailwind-merge": "^3.5.0"
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.3.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.24",
-    "eslint": "^10.0.1",
-    "eslint-config-next": "^16.1.6",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.2.0",
-    "typescript": "^5.9.3"
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2"
   }
 }
