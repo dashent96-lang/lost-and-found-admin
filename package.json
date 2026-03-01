@@ -2,25 +2,23 @@
   "name": "aau-unifound",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18"
   },
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "node server.ts",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@google/genai": "^1.42.0",
-    "@tailwindcss/postcss": "^4.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
     "mongoose": "^9.2.1",
-    "next": "15.1.7",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
@@ -29,7 +27,7 @@
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.20.1",
-    "eslint-config-next": "15.1.7",
+    "eslint-config-next": "latest",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.7",
     "typescript": "^5.7.3"
