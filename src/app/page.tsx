@@ -25,14 +25,6 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  export default function Home() {
-  return (
-    <main>
-      <h1>Lost and Found Admin Panel</h1>
-    </main>
-  );
-}
-
   const loadPosts = useCallback(async () => {
     // Admins need all posts for the Admin Panel moderation queue
     if (currentUser?.role === UserRole.ADMIN) {
