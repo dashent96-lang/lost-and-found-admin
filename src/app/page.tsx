@@ -26,12 +26,10 @@ export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const loadPosts = useCallback(async () => {
-    // Admins need all posts for the Admin Panel moderation queue
     if (currentUser?.role === UserRole.ADMIN) {
       const allPosts = await MockApi.getPosts(UserRole.ADMIN);
       setPosts(allPosts);
     } else {
-      // Regular users and guests only fetch approved posts for the registry
       const approvedPosts = await MockApi.getPosts(UserRole.USER);
       setPosts(approvedPosts);
     }
@@ -58,7 +56,7 @@ export default function Home() {
         await MockApi.updatePresence(currentUser.id);
       };
       heartbeat();
-      const interval = setInterval(heartbeat, 30000); // Every 30s
+      const interval = setInterval(heartbeat, 30000);
       return () => clearInterval(interval);
     }
   }, [currentUser]);
@@ -111,7 +109,9 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-2xl animate-spin"></div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Initializing Registry...</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Initializing Registry...
+          </p>
         </div>
       </div>
     );
@@ -136,7 +136,8 @@ export default function Home() {
                 AAU Campus <span className="text-indigo-600">Registry</span>
               </h1>
               <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-                Official property recovery system for Ambrose Alli University. Browse verified lost and found items.
+                Official property recovery system for Ambrose Alli University.
+                Browse verified lost and found items.
               </p>
             </section>
 
@@ -145,136 +146,46 @@ export default function Home() {
                 .filter(post => post.status === PostStatus.APPROVED)
                 .map(post => (
                 <div 
-                  key={post.id} 
+                  key={post.id}
                   onClick={() => setSelectedPost(post)}
                   className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group"
                 >
                   <div className="h-64 bg-slate-100 relative overflow-hidden">
                     {post.image ? (
                       <Image 
-                        src={post.image} 
-                        alt={post.title} 
+                        src={post.image}
+                        alt={post.title}
                         fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-200 italic font-black text-4xl">AAU</div>
+                      <div className="w-full h-full flex items-center justify-center text-slate-200 italic font-black text-4xl">
+                        AAU
+                      </div>
                     )}
                     <div className="absolute top-6 left-6">
-                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl ${post.type === 'LOST' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl ${
+                        post.type === 'LOST'
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-emerald-500 text-white'
+                      }`}>
                         {post.type}
                       </span>
                     </div>
                   </div>
+
                   <div className="p-8 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-indigo-600 text-[10px] font-black uppercase tracking-widest">{post.category}</p>
-                      {post.userAvatar && (
-                        <div className="w-6 h-6 rounded-full overflow-hidden border border-slate-100 shadow-sm">
-                          <Image src={post.userAvatar} alt={post.userName} width={24} height={24} referrerPolicy="no-referrer" />
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors truncate">{post.title}</h3>
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
-                      <span className="text-xs font-bold">{post.location}</span>
-                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 truncate">
+                      {post.title}
+                    </h3>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {currentView === 'about' && <AboutPage onGetStarted={() => setCurrentView('home')} />}
-        
-        {currentView === 'submit' && currentUser && (
-          <div className="max-w-4xl mx-auto">
-            <PostForm 
-              onSubmit={handleCreatePost} 
-              onCancel={() => setCurrentView('home')} 
-              isSubmitting={isSubmitting} 
-            />
-          </div>
-        )}
-
-        {currentView === 'admin' && currentUser?.role === UserRole.ADMIN && (
-          <AdminPanel 
-            posts={posts} 
-            onAction={handlePostAction} 
-            onDelete={handleDeletePost} 
-            onViewDetails={setSelectedPost} 
-          />
-        )}
-
-        {currentView === 'profile' && currentUser && (
-          <ProfilePage 
-            user={currentUser} 
-            onUpdateUser={setCurrentUser} 
-            onNavigateToInbox={() => setCurrentView('messages')} 
-            onViewPostDetails={setSelectedPost} 
-            onOpenChat={(post, targetId) => {
-              setActiveChatPost(post);
-              setActiveChatTarget(targetId);
-            }}
-          />
-        )}
-
-        {currentView === 'messages' && currentUser && (
-          <InboxPage 
-            user={currentUser} 
-            onOpenChat={(post, targetId) => {
-              setActiveChatPost(post);
-              setActiveChatTarget(targetId);
-            }} 
-          />
-        )}
       </main>
-
-      {selectedPost && currentUser && (
-        <PostDetailModal 
-          post={selectedPost} 
-          currentUser={currentUser} 
-          onClose={() => setSelectedPost(null)} 
-          onAction={handlePostAction}
-          onDelete={handleDeletePost}
-          onMessageOffice={(post) => {
-            setActiveChatPost(post);
-            if (currentUser.role === UserRole.ADMIN) {
-              setActiveChatTarget(post.userId);
-            }
-            setSelectedPost(null);
-          }}
-        />
-      )}
-
-      {activeChatPost && currentUser && (
-        <ChatWindow 
-          post={activeChatPost} 
-          currentUser={currentUser} 
-          targetUserId={activeChatTarget}
-          onClose={() => {
-            setActiveChatPost(null);
-            setActiveChatTarget(undefined);
-          }} 
-        />
-      )}
-
-      {isLoginModalOpen && (
-        <LoginModal 
-          onLogin={handleLogin} 
-          onClose={() => setIsLoginModalOpen(false)} 
-        />
-      )}
-
-      <footer className="bg-white border-t border-slate-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center space-y-4">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Ambrose Alli University • UniFound Registry</p>
-          <p className="text-slate-300 text-[9px] font-bold">© {new Date().getFullYear()} Official Campus Property Recovery System</p>
-        </div>
-      </footer>
     </div>
   );
 }
