@@ -81,7 +81,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onGetStarted }) => {
             <h2 className="text-3xl font-bold text-slate-900">AAU Policy & Benefits</h2>
             <ul className="space-y-4">
               {[
-                "Official @aauekpoma.edu.ng Email Login",
+                "Login with any Email Address",
                 "Centralized review by AAU Property Officers",
                 "Secure coordination for item returns",
                 "AI Assistance for clear reporting"

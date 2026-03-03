@@ -27,6 +27,7 @@ export interface Post {
   id: string;
   userId: string;
   userName: string;
+  userAvatar?: string;
   title: string;
   description: string;
   category: string;
@@ -44,6 +45,7 @@ export interface Message {
   senderId: string;
   recipientId: string;
   senderName: string;
+  senderAvatar?: string;
   content: string;
   timestamp: string;
   isAdmin: boolean;

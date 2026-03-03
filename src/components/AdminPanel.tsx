@@ -45,7 +45,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ posts, onAction, onDelete, onVi
           </div>
           <div>
             <div className="font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">{post.title}</div>
-            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{post.userName}</div>
+            <div className="flex items-center gap-2 mt-1">
+              {post.userAvatar && (
+                <div className="w-4 h-4 rounded-full overflow-hidden border border-slate-100">
+                  <Image src={post.userAvatar} alt={post.userName} width={16} height={16} referrerPolicy="no-referrer" />
+                </div>
+              )}
+              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{post.userName}</div>
+            </div>
           </div>
         </div>
       </td>

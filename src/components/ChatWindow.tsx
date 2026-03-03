@@ -1,7 +1,7 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Post, Message, User, UserRole } from '@/types';
 import { MockApi } from '@/services/mockApi';
 
@@ -9,23 +9,44 @@ interface ChatWindowProps {
   post: Post;
   currentUser: User;
   onClose: () => void;
+  targetUserId?: string; // Optional: specific user the admin is talking to
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ post, currentUser, onClose }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ post, currentUser, onClose, targetUserId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [otherUserPresence, setOtherUserPresence] = useState<{ isOnline: boolean; lastSeen?: string }>({ isOnline: false });
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // If admin, they talk to targetUserId or the post reporter. If user, they talk to admin.
+  const recipientId = currentUser.role === UserRole.ADMIN 
+    ? (targetUserId || post.userId) 
+    : 'admin_primary';
 
   useEffect(() => {
     const fetchMessages = async () => {
-      // For a user, they only see their thread with the admin about this post
-      const msgs = await MockApi.getMessages(post.id, currentUser.role === UserRole.ADMIN ? undefined : currentUser.id);
+      // Admins see the specific thread with the recipient
+      const msgs = await MockApi.getMessages(
+        post.id, 
+        currentUser.role === UserRole.ADMIN ? recipientId : currentUser.id,
+        currentUser.role
+      );
       setMessages(msgs);
     };
+
+    const fetchPresence = async () => {
+      const presence = await MockApi.getUserPresence(recipientId);
+      setOtherUserPresence(presence);
+    };
+
     fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
+    fetchPresence();
+    const interval = setInterval(() => {
+      fetchMessages();
+      fetchPresence();
+    }, 3000);
     return () => clearInterval(interval);
-  }, [post.id, currentUser]);
+  }, [post.id, currentUser, post.userId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
@@ -35,11 +56,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ post, currentUser, onClose }) =
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    // Users always message the admin.
-    const recipientId = currentUser.role === UserRole.ADMIN 
-      ? post.userId // Admin replies to the person who reported it
-      : 'admin_primary';
-    
     const msg = await MockApi.sendMessage({
       postId: post.id,
       senderId: currentUser.id,
@@ -63,10 +79,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ post, currentUser, onClose }) =
             </div>
             <div>
               <h3 className="text-xl font-black leading-tight truncate max-w-[280px]">{post.title}</h3>
-              <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mt-1 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Chatting with {currentUser.role === UserRole.ADMIN ? 'User' : 'Administrator'}
-              </p>
+              <div className="text-indigo-100 text-xs font-bold uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${otherUserPresence.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`}></span>
+                {currentUser.role === UserRole.ADMIN ? 'User' : 'Administrator'} 
+                <span className="opacity-60 ml-1">
+                  {otherUserPresence.isOnline ? 'Online' : 'Offline'}
+                </span>
+              </div>
             </div>
           </div>
           <button onClick={onClose} className="p-2.5 hover:bg-white/20 rounded-2xl transition-all active:scale-90">
@@ -86,8 +105,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ post, currentUser, onClose }) =
           {messages.map((m) => {
             const isMe = m.senderId === currentUser.id;
             return (
-              <div key={m.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-[1.5rem] px-5 py-3 shadow-md ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none'}`}>
+              <div key={m.id} className={`flex items-end gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 shrink-0 shadow-sm">
+                  {m.senderAvatar ? (
+                    <Image src={m.senderAvatar} alt={m.senderName} width={32} height={32} referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="w-full h-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                      {m.senderName.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className={`max-w-[80%] rounded-[1.5rem] px-5 py-3 shadow-md ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none'}`}>
                   {!isMe && <p className="text-[10px] font-black uppercase tracking-widest mb-1.5 text-indigo-500">{m.senderName}</p>}
                   <p className="text-[15px] leading-relaxed font-medium">{m.content}</p>
                   <p className={`text-[10px] font-bold mt-2 ${isMe ? 'text-indigo-200 text-right' : 'text-slate-400'}`}>

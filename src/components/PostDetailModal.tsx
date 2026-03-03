@@ -106,8 +106,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100 overflow-hidden">
+                {post.userAvatar ? (
+                  <Image src={post.userAvatar} alt={post.userName} width={48} height={48} referrerPolicy="no-referrer" />
+                ) : (
+                  <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                )}
               </div>
               <div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Reported By</p>
@@ -152,7 +156,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-3"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-                    Message Office About This
+                    {isAdmin ? 'Message Reporter' : 'Message Office About This'}
                   </button>
                 )}
                 {isOwner && post.status === PostStatus.PENDING && (

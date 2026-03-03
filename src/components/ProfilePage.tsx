@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { User, Post, Message, PostStatus, PostType } from '@/types';
+import { User, Post, Message, PostStatus, PostType, UserRole } from '@/types';
 import { MockApi } from '@/services/mockApi';
 
 interface ProfilePageProps {
@@ -10,27 +10,24 @@ interface ProfilePageProps {
   onUpdateUser: (updatedUser: User) => void;
   onNavigateToInbox: () => void;
   onViewPostDetails: (post: Post) => void;
+  onOpenChat: (post: Post, targetUserId?: string) => void;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigateToInbox, onViewPostDetails }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigateToInbox, onViewPostDetails, onOpenChat }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: user.name, avatar: user.avatar || '' });
   const [userPosts, setUserPosts] = useState<Post[]>([]);
-  const [conversations, setConversations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadUserData = async () => {
-      const [posts, inbox] = await Promise.all([
-        MockApi.getPosts(user.role, user.id),
-        MockApi.getUserInbox(user.id)
-      ]);
+      const posts = await MockApi.getPosts(user.role, user.id);
       setUserPosts(posts);
-      setConversations(inbox);
       setIsLoading(false);
     };
+    
     loadUserData();
   }, [user]);
 
@@ -193,8 +190,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigat
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Total Reports</p>
             </div>
             <div className="flex-1 bg-white p-8 rounded-[2rem] text-center border border-slate-100 shadow-xl shadow-slate-100/50 min-w-[140px]">
-              <p className="text-4xl font-black text-slate-900 tracking-tight">{conversations.length}</p>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Active Chats</p>
+              <p className="text-4xl font-black text-emerald-500 tracking-tight">Live</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Secure Inbox</p>
             </div>
           </div>
         </div>
@@ -267,49 +264,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onUpdateUser, onNavigat
           )}
         </div>
 
-        {/* Right Column: Active Inquiries */}
+        {/* Right Column: Security & Verification */}
         <div className="space-y-8">
-          <div className="flex items-center justify-between px-4">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Active Inquiries</h2>
-            <button 
-              onClick={onNavigateToInbox} 
-              className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline underline-offset-4 flex items-center gap-2"
-            >
-              Full Inbox
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-            </button>
-          </div>
-
-          <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-100/50 overflow-hidden">
-            {conversations.length === 0 ? (
-              <div className="p-12 text-center space-y-4">
-                <div className="w-20 h-20 bg-slate-50 rounded-3xl mx-auto flex items-center justify-center text-slate-200">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                </div>
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No active chats</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-50">
-                {conversations.slice(0, 5).map((conv, i) => (
-                  <button 
-                    key={i} 
-                    onClick={onNavigateToInbox}
-                    className="w-full p-6 text-left hover:bg-slate-50 transition-all flex gap-4 items-center group"
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest truncate">{conv.post.title}</p>
-                      <p className="text-xs text-slate-500 truncate mt-1 font-medium italic">&ldquo;{conv.lastMessage.content}&rdquo;</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Security & Verification Card */}
           <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
              <div className="absolute bottom-0 right-0 w-48 h-48 bg-indigo-600 rounded-full blur-[80px] opacity-40 -mb-24 -mr-24 transition-all duration-700 group-hover:scale-125"></div>
              <div className="absolute top-0 left-0 w-24 h-24 bg-rose-500 rounded-full blur-[60px] opacity-20 -mt-12 -ml-12"></div>
